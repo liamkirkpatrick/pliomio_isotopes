@@ -1,3 +1,17 @@
+# =========================
+# Untracked Files
+# =========================
+
+# data files (don't want these public yet, also quite big to track)
+data/
+
+# private reference materials (e.g. papers I don't want to be hosting publicly
+reference/private/
+
+# =========================
+# GitHub Python defaults
+# =========================
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -216,3 +230,61 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# =========================
+# macOS
+# =========================
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Finder metadata
+._*
+
+# macOS filesystem / volume files
+.Spotlight-V100
+.Trashes
+.fseventsd
+
+# =========================
+# MATLAB
+# =========================
+
+# MATLAB autosave / backup files
+*.asv
+
+# MATLAB compiled/generated files
+*.mex*
+*.mexa64
+*.mexmaci64
+*.mexw64
+
+# MATLAB code generation / build output
+codegen/
+slprj/
+
+# Simulink cache / generated files
+*.slxc
+*.autosave
+
+# MATLAB project/user-specific metadata
+*.prj.user
+
+# MATLAB temporary files
+*.m~
+*.mat~
+
+# MATLAB crash/debug files
+matlab_crash_dump.*
+java.log.*
+hs_err_pid*
+
+# MATLAB profiler output
+profile_results/
+
+# Optional: generated documentation
+# html/
+
+# Optional: MATLAB data files
+# Uncomment ONLY if .mat files are generated outputs rather than source data
+# *.mat
