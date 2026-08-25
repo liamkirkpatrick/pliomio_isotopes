@@ -4,6 +4,7 @@
 
 # data files (don't want these public yet, also quite big to track)
 data/
+legacy_matlab/
 
 # private reference materials (e.g. papers I don't want to be hosting publicly
 reference/private/
