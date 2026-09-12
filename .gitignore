@@ -2,12 +2,16 @@
 # Untracked Files
 # =========================
 
-# data files (don't want these public yet, also quite big to track)
+# Data files (not public yet and potentially large)
 data/
-legacy_matlab/
 
-# private reference materials (e.g. papers I don't want to be hosting publicly
-reference/private/
+# Keep legacy MATLAB data and generated outputs local, but allow source files.
+legacy_matlab/**
+!legacy_matlab/**/
+!legacy_matlab/**/*.m
+
+# private reference materials (e.g. papers I don't want to host publicly)
+references/private/
 
 # =========================
 # GitHub Python defaults

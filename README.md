@@ -2,12 +2,11 @@
 
 ## Overview
 
-This repository is a Python reimplementation and future extension of the
-**Simple Water Isotope Model (SWIM)** described by Markle and Steig (2022).
+This repository is a Python reimplementation and future extension of the **Simple Water Isotope Model (SWIM)** described by Markle and Steig (2022), applied to Allan Hills water isotope record.
 
 The project has two major phases:
 
-1. **Reproduce the legacy MATLAB implementation faithfully in Python.**
+1. **Reproduce the legacy MATLAB SWIM implementation faithfully in Python.**
 2. **After numerical and scientific parity is established, improve the software
    design and extend the model for new scientific applications.**
 
