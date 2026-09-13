@@ -11,7 +11,8 @@
 % Run from any working directory with:
 %   run('tests/run_swim_allan_hills_test.m')
 %
-% This is a provisional integration fixture, not yet a frozen parity baseline.
+% This defines the initial executable Python-port baseline. It does not claim
+% to identify the exact configuration used for every published result.
 
 clearvars;
 
@@ -77,7 +78,8 @@ assert(any(valid_rows), 'Input CSV contains no valid d18O/dD observation pairs.'
 
 metadata.schema_version = 1;
 metadata.test_name = 'Allan Hills SWIM end-to-end test';
-metadata.baseline_status = 'provisional';
+metadata.baseline_id = 'matlab-port-baseline-v1';
+metadata.baseline_status = 'frozen_for_python_parity';
 metadata.run_id = run_id;
 
 started_at_for_text = started_at;
