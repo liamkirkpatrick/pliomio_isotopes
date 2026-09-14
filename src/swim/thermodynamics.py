@@ -33,6 +33,20 @@ class PseudoAdiabatResult:
     saturation_over_liquid: NDArray[np.float64]
 
 
+def prescribed_supersaturation(
+    temperature_c: ArrayLike,
+    coefficient_a: float,
+    coefficient_b: float,
+    coefficient_c: float,
+) -> NDArray[np.float64] | np.float64:
+    """Return legacy ``max(a - b*T - c*T², 1)`` saturation over ice."""
+    temperature = np.asarray(temperature_c, dtype=np.float64)
+    return np.maximum(
+        coefficient_a - coefficient_b * temperature - coefficient_c * temperature**2,
+        1.0,
+    )
+
+
 def _validated_trajectory_inputs(
     temperature_c: ArrayLike,
     fraction_ice: ArrayLike,
@@ -43,8 +57,8 @@ def _validated_trajectory_inputs(
     liquid = np.asarray(fraction_liquid, dtype=np.float64)
     if temperature.ndim != 1:
         raise ValueError("temperature_c must be one-dimensional")
-    if temperature.size < 2:
-        raise ValueError("temperature_c must contain at least two points")
+    if temperature.size == 0:
+        raise ValueError("temperature_c must contain at least one point")
     if ice.shape != temperature.shape or liquid.shape != temperature.shape:
         raise ValueError("temperature and cloud-phase arrays must have equal shapes")
     return temperature, ice, liquid
@@ -196,11 +210,13 @@ def pseudo_adiabat(
     mixed_vapor_pressure = (
         liquid * liquid_vapor_pressure + ice * ice_vapor_pressure
     )
-    prescribed_saturation = np.maximum(
-        supersaturation_a
-        - supersaturation_b * temperature
-        - supersaturation_c * temperature**2,
-        1.0,
+    prescribed_saturation = np.asarray(
+        prescribed_supersaturation(
+            temperature,
+            supersaturation_a,
+            supersaturation_b,
+            supersaturation_c,
+        )
     )
 
     pressure = np.full(temperature.shape, np.nan, dtype=np.float64)
@@ -252,9 +268,10 @@ def pseudo_adiabat(
     )
     # MATLAB tests T(i) here after the loop, where i is the penultimate index.
     # Preserve that endpoint quirk until a deliberate post-parity decision.
+    use_mixed_saturation = temperature.size > 1 and temperature[-2] > 0.0
     target_saturation = (
         mixed_saturation[-1]
-        if temperature[-2] > 0.0
+        if use_mixed_saturation
         else prescribed_saturation[-1]
     )
     factor = target_saturation / (mixed_mixing_ratio / ice_mixing_ratio[-1])
@@ -281,5 +298,6 @@ def pseudo_adiabat(
 __all__ = [
     "PseudoAdiabatResult",
     "mixed_phase_supersaturation",
+    "prescribed_supersaturation",
     "pseudo_adiabat",
 ]

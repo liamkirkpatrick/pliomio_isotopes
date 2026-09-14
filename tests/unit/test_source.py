@@ -2,6 +2,7 @@ import numpy as np
 
 from swim.source import (
     climatological_source_conditions,
+    initial_vapor_from_climatology,
     seawater_delta_d_from_delta_18o,
 )
 
@@ -19,3 +20,12 @@ def test_seawater_deuterium_fit_is_linear() -> None:
     delta_d = seawater_delta_d_from_delta_18o(delta_18o)
 
     np.testing.assert_allclose(np.diff(delta_d), np.diff(delta_d)[0])
+
+
+def test_global_and_local_evaporation_closures_are_available() -> None:
+    local = initial_vapor_from_climatology(10.0, closure="local")
+    global_result = initial_vapor_from_climatology(10.0, closure="global")
+
+    assert np.isfinite(global_result.delta_d_permil)
+    assert np.isfinite(global_result.delta_18o_permil)
+    assert global_result.delta_d_permil != local.delta_d_permil

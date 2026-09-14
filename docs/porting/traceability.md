@@ -67,8 +67,8 @@ Python targets remain marked `TBD` until the corresponding implementation exists
 | source seawater \(\delta D\) relation | Appendix A2.1 | `d18Osw_to_dDsw.m` | VERIFIED-CODE | `swim.source.seawater_delta_d_from_delta_18o` | linear-fit unit test + frozen initial vapor | fit is recalculated from checked-in observations |
 | local evaporation closure | Eq. (A7) | `evaporation_2021.m` | VERIFIED-CODE | `swim.source.initial_vapor_from_climatology` | frozen T0=10 initial vapor | top-level default |
 | global evaporation closure | Eq. (A8) | `evaporation_2021.m` | VERIFIED-CODE | same, `closure="global"` | formula unit coverage pending | sensitivity/end-member configuration |
-| supersaturation \(S_i\) | Eq. (A14); Appendix A4 | `pseudo_adiabat_function.m` | VERIFIED-CODE | TBD | S(T) unit test | code supports \(a-bT-cT^2\) |
-| tuned \(b=0.00525\) | Appendix A4 | `run_SWIM_example.m`; saved result filenames | VERIFIED-PAPER / CODE | TBD | exact example setup | local closure base |
+| supersaturation \(S_i\) | Eq. (A14); Appendix A4 | `pseudo_adiabat_function.m` | VERIFIED-CODE | `swim.thermodynamics.prescribed_supersaturation` | exact S(T) unit test + frozen trajectory | code supports \(a-bT-cT^2\) |
+| tuned \(b=0.00525\) | Appendix A4 | `run_SWIM_example.m`; saved result filenames | VERIFIED-PAPER / CODE | default in `swim.model.forward_trajectory` | frozen trajectory and state space | local closure base |
 | mixed-phase effective α | Eq. (A13) | `distillation_2020.m` | VERIFIED-CODE | `swim.fractionation.mixed_phase_effective_fractionation` | frozen full αeff(T) curves | weighted ice + liquid |
 | kinetic condensation α | Eq. (A12) | `distillation_2020.m` | VERIFIED-CODE | `swim.fractionation.kinetic_condensation_factors` | unit tests + frozen effective α curves | selected liquid kinetic factors remain one |
 | transport diffusivity ratios | Appendix A2.2 | `distillation_2020.m`; `distillation_2022.m` | OPEN | `swim.fractionation.transport_diffusivity_ratios` | unit tests + frozen effective α curves | active checked-in versions use HH temperature dependence; publication provenance remains open |
@@ -85,15 +85,15 @@ Python targets remain marked `TBD` until the corresponding implementation exists
 
 | Scientific concept | Paper source | MATLAB implementation | Code status | Python target | Test target | Notes |
 |---|---|---|---|---|---|---|
-| nonlinear state-space inversion | Sect. 4.1 | `Tsite_Tsource_reconstruction_quick.m` | VERIFIED-CODE | TBD | known isotope pairs→\(T_0,T_c\) | interpolate modeled state space |
-| preferred \((\delta^{18}O,d_{ln})\) coordinates | Sect. 4.1; Appendix A6 | method 1 in `Tsite_Tsource_reconstruction_quick.m` | VERIFIED-PAPER/CODE | TBD | method-1 reference cases | MATLAB actually uses log-scaled \(\delta^{18}O\) |
-| alternate \((\delta^{18}O,\delta D)\) coordinates | Appendix A6 | method 2 | VERIFIED-CODE | TBD | optional comparison | log-scaled inputs in code |
-| alternate \((\delta^{18}O,d_{xs})\) coordinates | Appendix A6 | method 3 | VERIFIED-CODE | TBD | optional comparison | older/helper code has some inconsistent x-array choices; inspect before port |
-| natural-neighbor interpolation behavior | implementation detail | MATLAB `griddata(...,'natural')` | VERIFIED-CODE | TBD | dense interpolation comparison | Python equivalent must be parity-tested, not assumed |
-| condensation temperature meaning | Appendix A3.2 | state-space \(T_{\rm site}\) coordinate | VERIFIED-PAPER | TBD | documentation + integration test | weighted condensation temperature, not surface T |
-| surface ↔ condensation relation | Appendix A3.2 | `Ts_to_Tc_2020.m` | VERIFIED-PAPER/CODE | TBD | exact formula unit test | \(T_c=0.69T_s-8.2\) |
-| moisture-source temperature meaning | Appendix A3.1 | state-space \(T_{\rm source}\) coordinate | VERIFIED-PAPER | TBD | documentation | moisture-weighted source temperature, not fixed geographic SST |
-| seawater correction of ice-core records | Sect. 4.2; Appendix | `seawater_cor_ln.m`; `reconstruction_2020.m` | LIKELY-ACTIVE | TBD | selected published series | inspect helper in detail during reconstruction phase |
+| nonlinear state-space inversion | Sect. 4.1 | `Tsite_Tsource_reconstruction_quick.m` | VERIFIED-CODE | `swim.reconstruction.reconstruct_temperatures` | all 2,326 Allan Hills rows | interpolates modeled state space |
+| preferred \((\delta^{18}O,d_{ln})\) coordinates | Sect. 4.1; Appendix A6 | method 1 in `Tsite_Tsource_reconstruction_quick.m` | VERIFIED-PAPER/CODE | same | frozen Allan Hills reconstruction | MATLAB log-scaled \(\delta^{18}O\) preserved |
+| alternate \((\delta^{18}O,\delta D)\) coordinates | Appendix A6 | method 2 | VERIFIED-CODE | `reconstruct_temperatures(..., method=2)` | smoke coverage | active linear interpolation and inconsistent r_s query preserved |
+| alternate \((\delta^{18}O,d_{xs})\) coordinates | Appendix A6 | method 3 | VERIFIED-CODE | `reconstruct_temperatures(..., method=3)` | smoke coverage | active inconsistent raw/log x query and r_s query preserved |
+| natural-neighbor interpolation behavior | implementation detail | MATLAB `griddata(...,'natural')` | VERIFIED-CODE | `swim.interpolation.natural_neighbor_interpolate` | frozen Allan Hills reconstruction | Sibson area weights reproduce MATLAB to ~1e-12 °C |
+| condensation temperature meaning | Appendix A3.2 | state-space \(T_{\rm site}\) coordinate | VERIFIED-PAPER | `swim.model.StateSpace.condensation_temperature_c` | full state-space + reconstruction parity | weighted condensation temperature, not surface T |
+| surface ↔ condensation relation | Appendix A3.2 | `Ts_to_Tc_2020.m` | VERIFIED-PAPER/CODE | `swim.reconstruction.surface_temperature_from_condensation` | frozen Allan Hills reconstruction | \(T_c=0.69T_s-8.2\) |
+| moisture-source temperature meaning | Appendix A3.1 | state-space \(T_{\rm source}\) coordinate | VERIFIED-PAPER | `swim.model.StateSpace.source_temperature_c` | full state-space + reconstruction parity | moisture-weighted source temperature, not fixed geographic SST |
+| seawater correction of ice-core records | Sect. 4.2; Appendix | `seawater_cor_ln.m`; `reconstruction_2020.m` | LIKELY-ACTIVE | `swim.reconstruction.seawater_correct_isotopes` | initial-age identity unit test | uses checked-in Bintanja ice-volume series |
 | publication multi-core application | Sect. 4–5 | `reconstruction_2020.m` + external data compilation | PARTIAL / OPEN | application layer, not core | reproduce one core first | script depends on unavailable author-local paths/files |
 | reconstruction uncertainty | Appendix A9 | `Tsite_Tsource_reconstruction_2020_comb_unc.m`, `_ensemble.m`; multiple SWIM result files | PARTIAL | TBD | WDC uncertainty benchmark | map only after base inversion parity |
 

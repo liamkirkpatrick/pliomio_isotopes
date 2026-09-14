@@ -2,7 +2,19 @@ import numpy as np
 import pytest
 
 from swim.cloud_phase import cloud_phase_fractions
-from swim.thermodynamics import mixed_phase_supersaturation, pseudo_adiabat
+from swim.thermodynamics import (
+    mixed_phase_supersaturation,
+    prescribed_supersaturation,
+    pseudo_adiabat,
+)
+
+
+def test_prescribed_supersaturation_clips_values_below_one() -> None:
+    temperature_c = np.array([10.0, 0.0, -10.0, -30.0])
+
+    result = prescribed_supersaturation(temperature_c, 1.0, 0.00525, 0.0)
+
+    np.testing.assert_allclose(result, np.array([1.0, 1.0, 1.0525, 1.1575]))
 
 
 def test_short_pseudo_adiabat_has_expected_physical_direction() -> None:
