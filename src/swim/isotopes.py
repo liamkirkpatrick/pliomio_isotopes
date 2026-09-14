@@ -40,7 +40,7 @@ def log_delta(delta_permil: ArrayLike) -> FloatResult:
     important because the legacy logarithmic d-excess polynomial assumes it.
     """
     delta = np.asarray(delta_permil, dtype=np.float64)
-    return 1000.0 * np.log1p(delta / 1000.0)
+    return 1000.0 * np.log(1.0 + delta / 1000.0)
 
 
 def linear_deuterium_excess(
@@ -68,8 +68,8 @@ def oxygen_17_excess(
     delta_17o = np.asarray(delta_17o_permil, dtype=np.float64)
     delta_18o = np.asarray(delta_18o_permil, dtype=np.float64)
     return 1.0e6 * (
-        np.log1p(delta_17o / 1000.0)
-        - 0.528 * np.log1p(delta_18o / 1000.0)
+        np.log(1.0 + delta_17o / 1000.0)
+        - 0.528 * np.log(1.0 + delta_18o / 1000.0)
     )
 
 

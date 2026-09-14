@@ -72,9 +72,9 @@ Python targets remain marked `TBD` until the corresponding implementation exists
 | mixed-phase effective α | Eq. (A13) | `distillation_2020.m` | VERIFIED-CODE | `swim.fractionation.mixed_phase_effective_fractionation` | frozen full αeff(T) curves | weighted ice + liquid |
 | kinetic condensation α | Eq. (A12) | `distillation_2020.m` | VERIFIED-CODE | `swim.fractionation.kinetic_condensation_factors` | unit tests + frozen effective α curves | selected liquid kinetic factors remain one |
 | transport diffusivity ratios | Appendix A2.2 | `distillation_2020.m`; `distillation_2022.m` | OPEN | `swim.fractionation.transport_diffusivity_ratios` | unit tests + frozen effective α curves | active checked-in versions use HH temperature dependence; publication provenance remains open |
-| Rayleigh differential equation | Eq. (A9), Eq. (A11) | `distillation_2020.m` | VERIFIED-CODE | TBD | stepwise ratio comparison | direct ln(R) update |
-| precipitation isotope ratio | Appendix A2.2 | `distillation_2020.m` | VERIFIED-CODE | TBD | compare Rp at every T step | \(R_p=\alpha R_v\) |
-| no precipitation if no loss of vapor | implementation behavior | `distillation_2020.m` | VERIFIED-CODE | TBD | zero-Δf case | MATLAB assigns precipitation `NaN` |
+| Rayleigh differential equation | Eq. (A9), Eq. (A11) | `distillation_2020.m` | VERIFIED-CODE | `swim.distillation.rayleigh_distillation` | frozen stepwise ratio trajectories | direct ln(R) update |
+| precipitation isotope ratio | Appendix A2.2 | `distillation_2020.m` | VERIFIED-CODE | `swim.distillation.DistillationResult` | frozen Rp trajectories | \(R_p=\alpha R_v\) |
+| no precipitation if no loss of vapor | implementation behavior | `distillation_2020.m` | VERIFIED-CODE | `swim.distillation.rayleigh_distillation` | zero-Δf unit case | MATLAB `NaN` behavior preserved |
 | forward state-space grid | Sect. 3 | `simple_water_isotope_model_2020.m` | LIKELY-ACTIVE | TBD | small 3×3 state-space fixture | wrapper stores endpoint values |
 | full state-space products | Sect. 3 | `SWIM_results/*.mat` | VERIFIED-CODE/DATA | TBD | golden full-grid file | choose one canonical file first |
 
