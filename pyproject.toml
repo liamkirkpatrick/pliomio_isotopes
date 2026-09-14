@@ -79,3 +79,7 @@ check_untyped_defs = true
 # Do not require strict typing everywhere during the initial scientific port.
 # Tighten this incrementally once parity is established.
 disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = ["scipy.*"]
+ignore_missing_imports = true
