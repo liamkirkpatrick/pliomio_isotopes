@@ -39,7 +39,8 @@ def cloud_phase_fractions(
         + c4 * temperature**4
         + c5 * temperature**5
     )
-    fraction_liquid = 1.0 / (1.0 + np.exp(-polynomial))
+    with np.errstate(over="ignore"):
+        fraction_liquid = 1.0 / (1.0 + np.exp(-polynomial))
     fraction_ice = 1.0 - fraction_liquid
     return fraction_ice, fraction_liquid
 
