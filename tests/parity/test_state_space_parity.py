@@ -20,7 +20,9 @@ STATE_SPACE_PATH = (
 def test_full_state_space_matches_matlab() -> None:
     expected = loadmat(STATE_SPACE_PATH, simplify_cells=True)
     actual = forward_state_space(
-        np.asarray(expected["T_source"]), np.asarray(expected["T_site"])
+        np.asarray(expected["T_source"]),
+        np.asarray(expected["T_site"]),
+        evaporation_version="2021",
     )
 
     comparisons = {

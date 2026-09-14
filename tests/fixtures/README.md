@@ -132,6 +132,15 @@ The initial frozen porting fixture is:
 tests/fixtures/matlab/port_baseline_v1/allan_hills/
 ```
 
+The post-parity corrected evaporation reference is:
+
+```text
+tests/fixtures/matlab/evaporation_2022_Tsource_10.json
+```
+
+It records a direct MATLAB `evaporation_2022.m` run and does not replace or
+modify the frozen 2021-compatible fixture.
+
 ---
 
 ## Preferred storage formats

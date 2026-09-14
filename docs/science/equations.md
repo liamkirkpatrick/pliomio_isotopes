@@ -999,7 +999,11 @@ TK0 = T0 + 273.15;
 SSTK0 = sst0 + 273.15;
 ```
 
-**Action:** do not silently correct this in the Python parity port. First determine which routine generated the reference state-space outputs and capture MATLAB outputs from that exact configuration.
+**Resolution:** the frozen Python parity path retains the 2020 source-condition
+behavior when `evaporation_version="2021"` is selected. The Python default now
+uses the corrected 2022 Kelvin conversion together with the other active
+`evaporation_2022.m` diffusivity changes. A direct MATLAB evaporation reference
+was captured before changing the default.
 
 ### OQ-4 — `T_RH_RHn_2022.m` declares the old function name
 

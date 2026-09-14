@@ -49,8 +49,8 @@ uncertainty workflows rather than the validated core forward/inverse path.
 | logarithmic isotope transform | Sect. 1.2, Eq. (4) | `distillation_2020.m`; `Tsite_Tsource_reconstruction_quick.m` | VERIFIED-CODE | `swim.isotopes.log_delta` | unit test + frozen trajectory | MATLAB uses \(1000\ln(1+\delta/1000)\) |
 | logarithmic deuterium excess \(d_{ln}\) | Eq. (4) | `simple_water_isotope_model_2020.m`; `Tsite_Tsource_reconstruction_quick.m` | VERIFIED-CODE | `swim.isotopes.logarithmic_deuterium_excess` | unit test + frozen trajectory | paper and code use different numerical scaling conventions but equivalent polynomial coefficients after scaling |
 | \(^{17}O\) excess diagnostic | Sect. 1.2 | `distillation_2020.m`; wrapper | VERIFIED-CODE | `swim.isotopes.oxygen_17_excess` | unit test + frozen trajectory | returns per meg and preserves the legacy 0.528 exponent |
-| source \(T_0\) → SST/RH climatology | Appendix A1.1 | `T_RH_RHn_2020.m`; data spline `.mat` files | LIKELY-ACTIVE | `swim.source.climatological_source_conditions` | frozen T0=10 case + vector unit test | directly evaluates checked-in MATLAB pp-form splines |
-| normalized RH | Eq. (A1) | `T_RH_RHn_2020.m`; parts of `evaporation_2021.m` | OPEN | `swim.source.climatological_source_conditions` | frozen T0=10 case | frozen baseline's wrong °C→K sign is isolated and preserved |
+| source \(T_0\) → SST/RH climatology | Appendix A1.1 | `T_RH_RHn_2020.m`, `_2022.m`; data spline `.mat` files | VERIFIED-CODE | `swim.source.climatological_source_conditions` | frozen and corrected T0=10 cases + vector unit test | evaluates checked-in MATLAB pp-form splines; 2022 is default |
+| normalized RH | Eq. (A1) | `T_RH_RHn_2020.m`, `_2022.m` | VERIFIED-CODE | `swim.source.climatological_source_conditions` | direct MATLAB 2022 value + frozen 2020 value | corrected Kelvin conversion is default; `version="2020"` preserves the bug |
 | saturation mixing ratio | Eq. (A2) | `mixed_phased_supersaturation.m`; `pseudo_adiabat_function.m` | VERIFIED-CODE | `swim.saturation.saturated_mixing_ratio` | unit test + frozen trajectory | \(\eta=0.622\) preserved exactly |
 | saturation vapor pressure, liquid | Appendix A1.2 / Murphy & Koop | `pseudo_adiabat_function.m`; `evaporation_2021.m` | VERIFIED-CODE | `swim.saturation.saturation_vapor_pressure_liquid` | fixed-T unit values + frozen mixed-phase trajectory | exact formula preserved; Celsius input and kPa output |
 | saturation vapor pressure, ice | Appendix A1.2 / Murphy & Koop | same | VERIFIED-CODE | `swim.saturation.saturation_vapor_pressure_ice` | fixed-T unit values + frozen mixed-phase trajectory | exact formula preserved; Celsius input and kPa output |
@@ -64,7 +64,7 @@ uncertainty workflows rather than the validated core forward/inverse path.
 | equilibrium \(^{18}O\), liquid | Appendix A2 | same | VERIFIED-CODE | same | fixed-T unit values + frozen effective α | Criss coefficients |
 | equilibrium \(^{18}O\), ice | Appendix A2 | same | VERIFIED-CODE | same | fixed-T unit values + frozen effective α | Criss coefficients |
 | \(^{17}O\) equilibrium scaling | Appendix A2.1 | `evaporation_2021.m`; `distillation_2020.m` | OPEN | explicit exponent argument to `equilibrium_fractionation_factors` | fixed-T unit values + frozen effective α | unresolved choice remains explicit: evaporation uses 0.529; distillation ice uses 0.531 |
-| evaporation diffusive fractionation | Eq. (A4), Eq. (A5) | `evaporation_2021.m` | OPEN | `swim.source.initial_vapor_from_climatology` | frozen initial vapor | active N=0.302 Hellmann–Harvey branch preserved; publication provenance remains open |
+| evaporation diffusive fractionation | Eq. (A4), Eq. (A5) | `evaporation_2021.m`, `_2022.m` | VERIFIED-CODE / OPEN-PROVENANCE | `swim.source.initial_vapor_from_climatology` | direct MATLAB 2022 initial vapor + frozen 2021 initial vapor | default 2022 uses N=0.27 and direct HDO ratio; legacy option preserves N=0.302 approximation |
 | source seawater \(\delta^{18}O\) | Appendix A2.1 | `evaporation_2021.m` | VERIFIED-CODE | `swim.source.initial_vapor_from_climatology` | frozen initial vapor | default −0.3‰ preserved |
 | source seawater \(\delta D\) relation | Appendix A2.1 | `d18Osw_to_dDsw.m` | VERIFIED-CODE | `swim.source.seawater_delta_d_from_delta_18o` | linear-fit unit test + frozen initial vapor | fit is recalculated from checked-in observations |
 | local evaporation closure | Eq. (A7) | `evaporation_2021.m` | VERIFIED-CODE | `swim.source.initial_vapor_from_climatology` | frozen T0=10 initial vapor | top-level default |
@@ -77,8 +77,8 @@ uncertainty workflows rather than the validated core forward/inverse path.
 | Rayleigh differential equation | Eq. (A9), Eq. (A11) | `distillation_2020.m` | VERIFIED-CODE | `swim.distillation.rayleigh_distillation` | frozen stepwise ratio trajectories | direct ln(R) update |
 | precipitation isotope ratio | Appendix A2.2 | `distillation_2020.m` | VERIFIED-CODE | `swim.distillation.DistillationResult` | frozen Rp trajectories | \(R_p=\alpha R_v\) |
 | no precipitation if no loss of vapor | implementation behavior | `distillation_2020.m` | VERIFIED-CODE | `swim.distillation.rayleigh_distillation` | zero-Δf unit case | MATLAB `NaN` behavior preserved |
-| complete forward trajectory | Sect. 3; Appendix A | active evaporation + distillation call chain | VERIFIED-CODE | `swim.model.forward_trajectory` | frozen 401-step trajectory | composes all ported baseline components and retains intermediate state |
-| forward state-space grid | Sect. 3 | `simple_water_isotope_model_2020.m` | LIKELY-ACTIVE | `swim.model.forward_state_space` | frozen 29×71 state space | wrapper stores endpoint values |
+| complete forward trajectory | Sect. 3; Appendix A | active evaporation + distillation call chain | VERIFIED-CODE | `swim.model.forward_trajectory` | frozen 401-step trajectory with explicit 2021 option | corrected 2022 evaporation is the Python default |
+| forward state-space grid | Sect. 3 | `simple_water_isotope_model_2020.m` | LIKELY-ACTIVE | `swim.model.forward_state_space` | frozen 29×71 state space with explicit 2021 option | newly generated Python state spaces default to corrected 2022 evaporation |
 | full state-space products | Sect. 3 | `SWIM_results/*.mat` | VERIFIED-CODE/DATA | `swim.model.StateSpace` | frozen Allan Hills generation grid | broader publication-file provenance remains open |
 
 ---
@@ -141,7 +141,6 @@ Use stable IDs so issues, commits, and tests can refer to these items.
 | ID | Issue | Evidence | Risk | Resolution needed before |
 |---|---|---|---|---|
 | SWIM-D001 | publication baseline versions are not explicitly identified | wrapper uses mixed date suffixes; 2022 variants coexist | very high | exact publication reproduction |
-| SWIM-D002 | `T_RH_RHn_2020.m` appears to convert °C to K with subtraction | 2020 vs 2022 file comparison | very high | source-condition parity |
 | SWIM-D003 | explicit-RH branch calls `evaporation_2020`, climatology branch calls `_2021` | top-level wrapper | medium/high | RH-dimension support |
 | SWIM-D004 | \(^{17}O\) ice equilibrium exponent 0.529 vs 0.531 | evaporation vs distillation | medium | triple-isotope parity |
 | SWIM-D005 | transport diffusivity base configuration needs provenance | paper discusses fixed + HH; active code uses HH | medium/high | distillation parity |
@@ -159,6 +158,7 @@ Do not close a discrepancy merely because one interpretation is more scientifica
 
 | ID | Resolution |
 |---|---|
+| SWIM-D002 | Both behaviors are explicit: corrected `T_RH_RHn_2022.m` conversion is the Python default, while `evaporation_version="2021"` retains the frozen subtraction behavior. |
 | SWIM-D009 | `swim.interpolation.natural_neighbor_interpolate` implements Sibson area weights and matches all 2,326 frozen Allan Hills reconstruction rows to about \(10^{-12}\) °C. |
 
 ---

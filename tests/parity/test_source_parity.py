@@ -20,7 +20,7 @@ def test_initial_vapor_matches_frozen_matlab_trajectory() -> None:
     metadata = json.loads((FIXTURE_DIR / "metadata.json").read_text())
     expected = metadata["result"]["trajectory_initial_conditions"]
 
-    actual = initial_vapor_from_climatology(10.0)
+    actual = initial_vapor_from_climatology(10.0, evaporation_version="2021")
 
     np.testing.assert_allclose(actual.delta_d_permil, expected["dD_v0"], atol=1e-11)
     np.testing.assert_allclose(
@@ -35,4 +35,34 @@ def test_initial_vapor_matches_frozen_matlab_trajectory() -> None:
     np.testing.assert_allclose(actual.relative_humidity, expected["RH0"], atol=1e-14)
     np.testing.assert_allclose(
         actual.sea_surface_temperature_c, expected["SST0_C"], atol=1e-13
+    )
+
+
+@pytest.mark.parity
+def test_default_initial_vapor_matches_matlab_evaporation_2022() -> None:
+    reference_path = (
+        Path(__file__).parents[1]
+        / "fixtures"
+        / "matlab"
+        / "evaporation_2022_Tsource_10.json"
+    )
+    expected = json.loads(reference_path.read_text())["result"]
+
+    actual = initial_vapor_from_climatology(10.0)
+
+    np.testing.assert_allclose(
+        actual.delta_d_permil, expected["delta_d_vapor_permil"], atol=1e-12
+    )
+    np.testing.assert_allclose(
+        actual.delta_18o_permil, expected["delta_18o_vapor_permil"], atol=1e-12
+    )
+    np.testing.assert_allclose(
+        actual.oxygen_17_excess_log,
+        expected["oxygen_17_excess_log"],
+        atol=1e-16,
+    )
+    np.testing.assert_allclose(
+        actual.normalized_relative_humidity,
+        expected["normalized_relative_humidity"],
+        atol=1e-14,
     )

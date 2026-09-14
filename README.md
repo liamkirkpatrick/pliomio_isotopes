@@ -19,6 +19,10 @@ The implementation deliberately preserves known MATLAB quirks where they
 affect parity. Scientific corrections and broader extensions should be made
 after the relevant baseline behavior has been documented and tested.
 
+The Python forward model now defaults to the corrected MATLAB
+`evaporation_2022.m` behavior. Pass `evaporation_version="2021"` to reproduce
+the frozen legacy state-space fixture exactly.
+
 ## Scope
 
 “Port complete” in this repository means the frozen core forward and inverse
@@ -57,6 +61,17 @@ print(trajectory.distillation.delta_18o_precipitation[-1])
 print(trajectory.distillation.delta_d_precipitation[-1])
 ```
 
+The call above uses corrected 2022 source humidity and evaporation. For an
+exact frozen-baseline comparison:
+
+```python
+legacy_trajectory = forward_trajectory(
+    10.0,
+    -30.0,
+    evaporation_version="2021",
+)
+```
+
 Generate a state space:
 
 ```python
@@ -77,14 +92,23 @@ copy of the upstream legacy data to regenerate a state space. The checked-in
 MATLAB state-space fixture is self-contained and can be used for reconstruction
 without those local source files.
 
-Run the complete Allan Hills reconstruction against that frozen fixture:
+Run the complete Allan Hills reconstruction with corrected 2022 evaporation:
 
 ```bash
 python scripts/python/run_allan_hills.py
 ```
 
-The default output is `tests/generated/python_allan_hills.csv`; generated runs
-are ignored by Git.
+By default, this generates a new state space with corrected 2022 evaporation.
+To reconstruct with the frozen 2021-compatible MATLAB fixture instead:
+
+```bash
+python scripts/python/run_allan_hills.py \
+  --state-space tests/fixtures/matlab/port_baseline_v1/allan_hills/state_space.mat
+```
+
+Output is written to `tests/generated/python_allan_hills.csv`; generated runs
+are ignored by Git. Generating the corrected state space requires the local
+legacy climatology data described above.
 
 Use the model directly for inversion:
 
@@ -114,9 +138,11 @@ Run only MATLAB parity tests:
 conda run -n mioplio python -m pytest -q tests/parity
 ```
 
-The full state-space test regenerates the 29 × 71 baseline grid and is the
-slowest test. Frozen fixtures, their provenance, and numerical tolerances are
-documented under `tests/fixtures/` and `docs/porting/traceability.md`.
+The full state-space test explicitly selects 2021 evaporation and regenerates
+the 29 × 71 frozen baseline grid. It is the slowest test. A separate direct
+MATLAB reference validates the corrected 2022 initial evaporation. Fixtures,
+their provenance, and numerical tolerances are documented under
+`tests/fixtures/` and `docs/porting/traceability.md`.
 
 To regenerate the MATLAB reference locally:
 

@@ -87,6 +87,12 @@ Hills inversion stored in this fixture. This completion statement is limited
 to the frozen baseline: the exact state-space provenance for every published
 result and the unavailable publication application inputs remain unresolved.
 
+The frozen baseline remains available in Python through
+`evaporation_version="2021"`. Following parity, the Python forward-model
+default was deliberately changed to the corrected `evaporation_2022.m` path.
+That change includes the corrected Kelvin conversion and the 2022 diffusivity
+choices, and is documented separately under `docs/porting/decisions/`.
+
 The checked-in repository contains multiple dated versions of important model components. The numerically newest filename is not necessarily the active implementation.
 
 The checked-in example currently implies the following forward-model call chain for the climatological-relative-humidity case:

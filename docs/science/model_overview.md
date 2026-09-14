@@ -2,9 +2,11 @@
 
 SWIM maps a moisture-source air temperature and a condensation temperature to
 the isotope composition of precipitation. The frozen baseline uses annual
-Southern Hemisphere NCEP source climatology, local evaporation closure, a
+Southern Hemisphere NCEP source climatology, 2021 local evaporation closure, a
 pseudo-adiabatic transport path, and the tuned linear ice-supersaturation
-coefficient `b = 0.00525`.
+coefficient `b = 0.00525`. The Python scientific default deliberately advances
+the source calculation to corrected `evaporation_2022.m` behavior; the frozen
+2021 behavior remains selectable for parity.
 
 One forward trajectory has four stages:
 

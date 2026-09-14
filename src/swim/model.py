@@ -1,4 +1,4 @@
-"""Composed forward-model workflows for the frozen legacy SWIM baseline."""
+"""Composed SWIM forward workflows with selectable evaporation behavior."""
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -21,6 +21,7 @@ from swim.fractionation import (
 )
 from swim.source import (
     DEFAULT_LEGACY_DATA_DIR,
+    EvaporationVersion,
     Hemisphere,
     InitialVapor,
     initial_vapor_from_climatology,
@@ -118,9 +119,10 @@ def forward_trajectory(
     closure: Literal["local", "global"] = "local",
     hemisphere: Hemisphere = "south",
     reanalysis: Literal["ncep", "era"] = "ncep",
+    evaporation_version: EvaporationVersion = "2022",
     data_dir: Path = DEFAULT_LEGACY_DATA_DIR,
 ) -> ForwardTrajectory:
-    """Run one complete frozen-baseline SWIM forward trajectory."""
+    """Run one SWIM trajectory, using corrected 2022 evaporation by default."""
     temperature = matlab_temperature_grid(
         source_temperature_c, condensation_temperature_c, step_c
     )
@@ -129,6 +131,7 @@ def forward_trajectory(
         closure=closure,
         hemisphere=hemisphere,
         reanalysis=reanalysis,
+        evaporation_version=evaporation_version,
         data_dir=data_dir,
     )
     fraction_ice_raw, fraction_liquid_raw = cloud_phase_fractions(
@@ -199,9 +202,10 @@ def forward_state_space(
     closure: Literal["local", "global"] = "local",
     hemisphere: Hemisphere = "south",
     reanalysis: Literal["ncep", "era"] = "ncep",
+    evaporation_version: EvaporationVersion = "2022",
     data_dir: Path = DEFAULT_LEGACY_DATA_DIR,
 ) -> StateSpace:
-    """Build the endpoint state space from ``simple_water_isotope_model_2020``."""
+    """Build an endpoint state space, using 2022 evaporation by default."""
     source_grid = np.asarray(source_temperature_c, dtype=np.float64)
     condensation_grid = np.asarray(condensation_temperature_c, dtype=np.float64)
     if source_grid.ndim != 1 or condensation_grid.ndim != 1:
@@ -235,6 +239,7 @@ def forward_state_space(
                 closure=closure,
                 hemisphere=hemisphere,
                 reanalysis=reanalysis,
+                evaporation_version=evaporation_version,
                 data_dir=data_dir,
             )
             isotope = trajectory.distillation

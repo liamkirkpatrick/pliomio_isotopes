@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reconstruct Allan Hills temperatures with the frozen SWIM state space."""
+"""Reconstruct Allan Hills temperatures with corrected SWIM evaporation."""
 
 from __future__ import annotations
 
@@ -9,32 +9,32 @@ from pathlib import Path
 
 import numpy as np
 
-from swim.model import load_matlab_state_space
+from swim.model import forward_state_space, load_matlab_state_space
 from swim.reconstruction import reconstruct_temperatures
 
 PROJECT_ROOT = Path(__file__).parents[2]
 DEFAULT_INPUT = PROJECT_ROOT / "tests" / "test_data.csv"
-DEFAULT_STATE_SPACE = (
-    PROJECT_ROOT
-    / "tests"
-    / "fixtures"
-    / "matlab"
-    / "port_baseline_v1"
-    / "allan_hills"
-    / "state_space.mat"
-)
 DEFAULT_OUTPUT = PROJECT_ROOT / "tests" / "generated" / "python_allan_hills.csv"
 
 
 def _arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default=DEFAULT_INPUT)
-    parser.add_argument("--state-space", type=Path, default=DEFAULT_STATE_SPACE)
+    parser.add_argument(
+        "--state-space",
+        type=Path,
+        help=(
+            "Load an existing MATLAB-format state space. If omitted, generate "
+            "a new state space with the corrected 2022 evaporation default."
+        ),
+    )
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     return parser.parse_args()
 
 
-def run(input_path: Path, state_space_path: Path, output_path: Path) -> int:
+def run(
+    input_path: Path, state_space_path: Path | None, output_path: Path
+) -> int:
     """Run the reconstruction and return the number of finite results written."""
     with input_path.open(newline="", encoding="utf-8-sig") as input_file:
         reader = csv.DictReader(input_file)
@@ -52,7 +52,12 @@ def run(input_path: Path, state_space_path: Path, output_path: Path) -> int:
             [float(row[column]) if row[column].strip() else np.nan for row in rows]
         )
 
-    state_space = load_matlab_state_space(state_space_path)
+    if state_space_path is None:
+        state_space = forward_state_space(
+            np.arange(0.0, 29.0), np.arange(-70.0, 1.0)
+        )
+    else:
+        state_space = load_matlab_state_space(state_space_path)
     result = reconstruct_temperatures(
         numeric("dD_smow"), numeric("d18O_smow"), state_space
     )

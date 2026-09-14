@@ -1,0 +1,26 @@
+{
+  "reference_id": "matlab-evaporation-2022-Tsource-10-v1",
+  "generated_at": "2026-09-14",
+  "matlab_release": "R2026a Update 4",
+  "configuration": {
+    "source_temperature_c": 10.0,
+    "sea_surface_temperature": "climatology",
+    "relative_humidity": "climatology",
+    "closure": "local",
+    "reanalysis": "ncep",
+    "hemisphere": "south",
+    "season": "annual"
+  },
+  "source_files": {
+    "legacy_matlab/evaporation_2022.m": "3754a1572673d6e2f8814b6a608b5700831b7c12ec5e37d3a8a28cb73336fd31",
+    "legacy_matlab/T_RH_RHn_2022.m": "fb739513be577a2bff5ad15d9186d27f06e469f7e51e6d7aba11feb25eb80660"
+  },
+  "result": {
+    "delta_d_vapor_permil": -92.630243379972171,
+    "delta_18o_vapor_permil": -12.448385650174366,
+    "oxygen_17_excess_log": 6.4064148367895188e-06,
+    "normalized_relative_humidity": 0.80258929758248454,
+    "relative_humidity": 0.85292580149455144,
+    "sea_surface_temperature_c": 10.911054921677735
+  }
+}

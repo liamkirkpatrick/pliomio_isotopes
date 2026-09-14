@@ -1,4 +1,4 @@
-"""Source-region climatology and ocean evaporation for legacy SWIM."""
+"""Source-region climatology and selectable SWIM evaporation versions."""
 
 from dataclasses import dataclass
 from functools import cache
@@ -16,9 +16,12 @@ from swim.fractionation import (
     transport_diffusivity_ratios,
 )
 from swim.isotopes import R18O_VSMOW, RD_VSMOW
+from swim.saturation import saturation_vapor_pressure_liquid
 
 FloatResult: TypeAlias = np.float64 | NDArray[np.float64]
 Hemisphere: TypeAlias = Literal["south", "north", "all"]
+SourceConditionsVersion: TypeAlias = Literal["2020", "2022"]
+EvaporationVersion: TypeAlias = Literal["2021", "2022"]
 
 DEFAULT_LEGACY_DATA_DIR = Path(__file__).parents[2] / "legacy_matlab" / "data"
 
@@ -110,12 +113,14 @@ def climatological_source_conditions(
     *,
     hemisphere: Hemisphere = "south",
     reanalysis: Literal["ncep", "era"] = "ncep",
+    version: SourceConditionsVersion = "2022",
     data_dir: Path = DEFAULT_LEGACY_DATA_DIR,
 ) -> SourceConditions:
-    """Evaluate the selected legacy smoothing-spline climatology.
+    """Evaluate the selected smoothing-spline source climatology.
 
-    This deliberately preserves the erroneous Celsius-to-Kelvin subtraction
-    in ``T_RH_RHn_2020.m`` because the frozen MATLAB baseline used it.
+    Version ``"2022"`` uses the corrected Celsius-to-Kelvin conversion and is
+    the Python default. Version ``"2020"`` preserves the frozen MATLAB
+    baseline's subtraction bug for reproducibility.
     Relative humidity is returned as a fraction, not MATLAB's intermediate
     percent value.
     """
@@ -133,23 +138,32 @@ def climatological_source_conditions(
         model_temperature, delta_rh, temperature
     )
 
-    skin_vapor_pressure = _legacy_liquid_vapor_pressure_from_bad_kelvin(
-        temperature - 273.15
-    )
-    sst_vapor_pressure = _legacy_liquid_vapor_pressure_from_bad_kelvin(
-        sea_surface_temperature - 273.15
-    )
-    normalized_percent = np.real(
-        relative_humidity_percent * skin_vapor_pressure / sst_vapor_pressure
-    )
-    normalized_uncertainty = (
-        np.real(
-            (relative_humidity_percent + relative_humidity_uncertainty)
-            * skin_vapor_pressure
-            / sst_vapor_pressure
+    if version == "2020":
+        legacy_skin_vapor_pressure = _legacy_liquid_vapor_pressure_from_bad_kelvin(
+            temperature - 273.15
         )
-        - normalized_percent
-    ) / 100.0
+        legacy_sst_vapor_pressure = (
+            _legacy_liquid_vapor_pressure_from_bad_kelvin(
+                sea_surface_temperature - 273.15
+            )
+        )
+        vapor_pressure_ratio = np.real(
+            legacy_skin_vapor_pressure / legacy_sst_vapor_pressure
+        )
+    elif version == "2022":
+        corrected_skin_vapor_pressure = saturation_vapor_pressure_liquid(temperature)
+        corrected_sst_vapor_pressure = saturation_vapor_pressure_liquid(
+            sea_surface_temperature
+        )
+        vapor_pressure_ratio = np.asarray(
+            corrected_skin_vapor_pressure / corrected_sst_vapor_pressure
+        )
+    else:
+        raise ValueError(f"Unknown source-condition version: {version!r}")
+    normalized_percent = relative_humidity_percent * vapor_pressure_ratio
+    normalized_uncertainty = (
+        relative_humidity_uncertainty * vapor_pressure_ratio / 100.0
+    )
 
     return SourceConditions(
         relative_humidity=relative_humidity_percent / 100.0,
@@ -188,16 +202,29 @@ def initial_vapor_from_climatology(
     closure: Literal["local", "global"] = "local",
     hemisphere: Hemisphere = "south",
     reanalysis: Literal["ncep", "era"] = "ncep",
+    evaporation_version: EvaporationVersion = "2022",
     seawater_delta_18o_permil: float = -0.3,
     oxygen_18_diffusive_fractionation: float = 1.009,
     data_dir: Path = DEFAULT_LEGACY_DATA_DIR,
 ) -> InitialVapor:
-    """Calculate initial vapor using the active ``evaporation_2021.m`` path."""
+    """Calculate initial vapor with a selectable MATLAB evaporation version.
+
+    The corrected ``evaporation_2022.m`` path is the default. Select ``"2021"``
+    to reproduce the frozen legacy fixture exactly.
+    """
     temperature = np.asarray(source_air_temperature_c, dtype=np.float64)
+    source_version: SourceConditionsVersion
+    if evaporation_version == "2021":
+        source_version = "2020"
+    elif evaporation_version == "2022":
+        source_version = "2022"
+    else:
+        raise ValueError(f"Unknown evaporation version: {evaporation_version!r}")
     source = climatological_source_conditions(
         temperature,
         hemisphere=hemisphere,
         reanalysis=reanalysis,
+        version=source_version,
         data_dir=data_dir,
     )
     equilibrium = equilibrium_fractionation_factors(
@@ -209,12 +236,15 @@ def initial_vapor_from_climatology(
     oxygen_18_ratio = np.asarray(diffusivity.h218o_over_h216o)
     phi_diffusivity = (1.0 - hdo_ratio) / (1.0 - oxygen_18_ratio)
 
-    # The argument remains for traceability to the legacy signature, but the
-    # selected active branch overwrites its initial 1.009 value using N=0.302.
+    # The argument remains for traceability to the MATLAB signature, but both
+    # selected active branches overwrite its initial 1.009 value.
     _ = oxygen_18_diffusive_fractionation
-    diffusivity_exponent = 0.302
+    diffusivity_exponent = 0.302 if evaporation_version == "2021" else 0.27
     alpha_18_diffusive = (1.0 / oxygen_18_ratio) ** diffusivity_exponent
-    alpha_d_diffusive = phi_diffusivity * (alpha_18_diffusive - 1.0) + 1.0
+    if evaporation_version == "2021":
+        alpha_d_diffusive = phi_diffusivity * (alpha_18_diffusive - 1.0) + 1.0
+    else:
+        alpha_d_diffusive = (1.0 / hdo_ratio) ** diffusivity_exponent
     alpha_18_equilibrium = np.asarray(equilibrium.oxygen_18_liquid)
     alpha_d_equilibrium = np.asarray(equilibrium.deuterium_liquid)
     normalized_humidity = np.asarray(source.normalized_relative_humidity)
@@ -287,7 +317,9 @@ def initial_vapor_from_climatology(
 
 
 __all__ = [
+    "EvaporationVersion",
     "InitialVapor",
+    "SourceConditionsVersion",
     "SourceConditions",
     "climatological_source_conditions",
     "initial_vapor_from_climatology",

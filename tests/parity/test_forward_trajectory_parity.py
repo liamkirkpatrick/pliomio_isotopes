@@ -18,7 +18,7 @@ TRAJECTORY_PATH = (
 @pytest.mark.parity
 def test_composed_forward_trajectory_matches_matlab() -> None:
     expected = np.genfromtxt(TRAJECTORY_PATH, delimiter=",", names=True)
-    actual = forward_trajectory(10.0, -30.0)
+    actual = forward_trajectory(10.0, -30.0, evaporation_version="2021")
 
     comparisons = {
         "temperature_C": actual.temperature_c,

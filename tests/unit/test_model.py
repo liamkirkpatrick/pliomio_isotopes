@@ -18,3 +18,16 @@ def test_single_point_trajectory_matches_legacy_endpoint_branch() -> None:
     assert result.temperature_c.shape == (1,)
     assert result.thermodynamics.pressure_kpa[0] == 101.325
     assert result.thermodynamics.fraction_vapor_remaining[0] == 1.0
+
+
+def test_forward_model_defaults_to_corrected_2022_evaporation() -> None:
+    corrected = forward_trajectory(10.0, 9.9)
+    legacy = forward_trajectory(10.0, 9.9, evaporation_version="2021")
+
+    np.testing.assert_allclose(
+        corrected.source_vapor.delta_18o_permil, -12.448385650174366
+    )
+    assert (
+        corrected.distillation.delta_18o_precipitation[-1]
+        != legacy.distillation.delta_18o_precipitation[-1]
+    )
