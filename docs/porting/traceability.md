@@ -56,12 +56,12 @@ Python targets remain marked `TBD` until the corresponding implementation exists
 | mixed-phase supersaturation | Appendix A1.2 | `mixed_phased_supersaturation.m` | VERIFIED-CODE | `swim.thermodynamics.mixed_phase_supersaturation` | frozen full trajectory | separate first Euler integration preserved |
 | pseudo-adiabatic pressure trajectory | Appendix A1.2 | `mixed_phased_supersaturation.m`; `pseudo_adiabat_function.m` | VERIFIED-CODE | `swim.thermodynamics.pseudo_adiabat` | frozen full P(T) trajectory | second explicit Euler integration preserved |
 | fraction of vapor remaining \(f\) | Eq. (A10) | `pseudo_adiabat_function.m` | VERIFIED-CODE | `swim.thermodynamics.PseudoAdiabatResult` | frozen full f(T) trajectory | `f = r_s/r_s(1)` |
-| fractionation factor definition | Eq. (A3) | embedded in evaporation/distillation formulas | VERIFIED-CODE | TBD | unit tests on α | |
-| equilibrium D fractionation, liquid | Appendix A2 | `evaporation_2021.m`; `distillation_2020.m` | VERIFIED-CODE | TBD | α(T) reference grid | Criss coefficients |
-| equilibrium D fractionation, ice | Appendix A2; Lamb et al. update | same | VERIFIED-CODE | TBD | α(T) reference grid | Lamb formula active |
-| equilibrium \(^{18}O\), liquid | Appendix A2 | same | VERIFIED-CODE | TBD | α(T) reference grid | |
-| equilibrium \(^{18}O\), ice | Appendix A2 | same | VERIFIED-CODE | TBD | α(T) reference grid | |
-| \(^{17}O\) equilibrium scaling | Appendix A2.1 | `evaporation_2021.m`; `distillation_2020.m` | OPEN | TBD | compare α17 at cold T | evaporation uses 0.529; distillation ice uses 0.531 |
+| fractionation factor definition | Eq. (A3) | embedded in evaporation/distillation formulas | VERIFIED-CODE | `swim.fractionation.EquilibriumFractionationFactors` | unit tests on α | factors are heavy-phase/light-vapor ratios |
+| equilibrium D fractionation, liquid | Appendix A2 | `evaporation_2021.m`; `distillation_2020.m` | VERIFIED-CODE | `swim.fractionation.equilibrium_fractionation_factors` | fixed-T unit values + frozen effective α | Criss coefficients |
+| equilibrium D fractionation, ice | Appendix A2; Lamb et al. update | same | VERIFIED-CODE | same | fixed-T unit values + frozen effective α | Lamb formula active |
+| equilibrium \(^{18}O\), liquid | Appendix A2 | same | VERIFIED-CODE | same | fixed-T unit values + frozen effective α | Criss coefficients |
+| equilibrium \(^{18}O\), ice | Appendix A2 | same | VERIFIED-CODE | same | fixed-T unit values + frozen effective α | Criss coefficients |
+| \(^{17}O\) equilibrium scaling | Appendix A2.1 | `evaporation_2021.m`; `distillation_2020.m` | OPEN | explicit exponent argument to `equilibrium_fractionation_factors` | fixed-T unit values + frozen effective α | unresolved choice remains explicit: evaporation uses 0.529; distillation ice uses 0.531 |
 | evaporation diffusive fractionation | Eq. (A4), Eq. (A5) | `evaporation_2021.m` | OPEN | TBD | compare initial vapor for selected T/RH | file contains multiple alternatives; active branch should be frozen from selected baseline |
 | source seawater \(\delta^{18}O\) | Appendix A2.1 | `evaporation_2021.m` | VERIFIED-CODE | TBD | default-input test | default −0.3‰ if unspecified |
 | source seawater \(\delta D\) relation | Appendix A2.1 | `d18Osw_to_dDsw.m` | VERIFIED-CODE | TBD | compare helper output | helper still needs detailed inspection before port |
@@ -69,9 +69,9 @@ Python targets remain marked `TBD` until the corresponding implementation exists
 | global evaporation closure | Eq. (A8) | `evaporation_2021.m` | VERIFIED-CODE | TBD | global-closure reference cases | sensitivity/end-member configuration |
 | supersaturation \(S_i\) | Eq. (A14); Appendix A4 | `pseudo_adiabat_function.m` | VERIFIED-CODE | TBD | S(T) unit test | code supports \(a-bT-cT^2\) |
 | tuned \(b=0.00525\) | Appendix A4 | `run_SWIM_example.m`; saved result filenames | VERIFIED-PAPER / CODE | TBD | exact example setup | local closure base |
-| mixed-phase effective α | Eq. (A13) | `distillation_2020.m` | VERIFIED-CODE | TBD | compare αeff(T) | weighted ice + liquid |
-| kinetic condensation α | Eq. (A12) | `distillation_2020.m` | VERIFIED-CODE | TBD | compare αk(T) | |
-| transport diffusivity ratios | Appendix A2.2 | `distillation_2020.m`; `distillation_2022.m` | OPEN | TBD | compare D-ratio arrays | active checked-in versions use HH temperature dependence; pin publication baseline |
+| mixed-phase effective α | Eq. (A13) | `distillation_2020.m` | VERIFIED-CODE | `swim.fractionation.mixed_phase_effective_fractionation` | frozen full αeff(T) curves | weighted ice + liquid |
+| kinetic condensation α | Eq. (A12) | `distillation_2020.m` | VERIFIED-CODE | `swim.fractionation.kinetic_condensation_factors` | unit tests + frozen effective α curves | selected liquid kinetic factors remain one |
+| transport diffusivity ratios | Appendix A2.2 | `distillation_2020.m`; `distillation_2022.m` | OPEN | `swim.fractionation.transport_diffusivity_ratios` | unit tests + frozen effective α curves | active checked-in versions use HH temperature dependence; publication provenance remains open |
 | Rayleigh differential equation | Eq. (A9), Eq. (A11) | `distillation_2020.m` | VERIFIED-CODE | TBD | stepwise ratio comparison | direct ln(R) update |
 | precipitation isotope ratio | Appendix A2.2 | `distillation_2020.m` | VERIFIED-CODE | TBD | compare Rp at every T step | \(R_p=\alpha R_v\) |
 | no precipitation if no loss of vapor | implementation behavior | `distillation_2020.m` | VERIFIED-CODE | TBD | zero-Δf case | MATLAB assigns precipitation `NaN` |
