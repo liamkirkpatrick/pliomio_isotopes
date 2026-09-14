@@ -1,0 +1,197 @@
+{
+  "schema_version": 1,
+  "test_name": "Allan Hills SWIM end-to-end test",
+  "baseline_id": "matlab-port-baseline-v1",
+  "baseline_status": "frozen_for_python_parity",
+  "run_id": "allan_hills_swim_20260914T005221Z",
+  "started_at_utc": "2026-09-14T00:52:21.318Z",
+  "project": {
+    "git_commit": "5c0102b3b319f302c056e3dcb2fe92083158c2c7",
+    "git_dirty": false,
+    "git_status": "",
+    "legacy_upstream_commit": "4db23b79aab8f2154254d9111f77e70a5ce8427d"
+  },
+  "matlab": {
+    "version": "26.1.0.3312084 (R2026a) Update 4",
+    "release": "2026a",
+    "computer": "MACA64",
+    "architecture": "maca64",
+    "toolboxes": [
+      {
+        "Name": "Curve Fitting Toolbox",
+        "Version": "26.1",
+        "Release": "(R2026a)",
+        "Date": "20-Nov-2025"
+      },
+      {
+        "Name": "MATLAB",
+        "Version": "26.1",
+        "Release": "(R2026a)",
+        "Date": "19-Nov-2025"
+      },
+      {
+        "Name": "MATLAB Coder",
+        "Version": "26.1",
+        "Release": "(R2026a)",
+        "Date": "20-Nov-2025"
+      },
+      {
+        "Name": "MATLAB Compiler",
+        "Version": "26.1",
+        "Release": "(R2026a)",
+        "Date": "20-Nov-2025"
+      },
+      {
+        "Name": "Simulink",
+        "Version": "26.1",
+        "Release": "(R2026a)",
+        "Date": "20-Nov-2025"
+      }
+    ]
+  },
+  "input": {
+    "file": "tests/test_data.csv",
+    "sha256": "cb310acd7c4e8c88b6957e7b9559f7f4fa2c01e086e1415b8fab6191f813bc17",
+    "row_count": 2326,
+    "valid_isotope_pair_count": 2248,
+    "variables": [
+      "core",
+      "sample_id",
+      "top_depth",
+      "bottom_depth",
+      "mid_depth",
+      "d18O_smow",
+      "d18O_RMSE",
+      "dD_smow",
+      "dD_RMSE",
+      "dxs_smow",
+      "dxs_RMSE",
+      "type"
+    ],
+    "max_abs_dxs_residual": 0
+  },
+  "configuration": {
+    "Tsite": [
+      -70,
+      0,
+      1
+    ],
+    "Tsource": [
+      0,
+      28,
+      1
+    ],
+    "RHsource": [],
+    "supersaturation_a": 1,
+    "supersaturation_b": 0.00525,
+    "supersaturation_c": 0,
+    "closure": "local",
+    "reanalysis": "ncep",
+    "hemisphere": 1,
+    "season": "annual",
+    "reconstruction_method": 1,
+    "internal_trajectory_step_degC": 0.1,
+    "trajectory": {
+      "Tsource_C": 10,
+      "Tcond_C": -30,
+      "step_degC": 0.1
+    }
+  },
+  "interpolation": {
+    "temperature_method": "natural",
+    "mixing_ratio_method": "linear (MATLAB griddata default)"
+  },
+  "randomness": "none",
+  "source_files": [
+    {
+      "function_name": "run_swim_allan_hills_test",
+      "file": "tests/run_swim_allan_hills_test.m",
+      "sha256": "a05a86f0ed63b8bf8977e9bdeb2674f0c5d6ae7aa08b5ac0ca60af8779acaa81"
+    },
+    {
+      "function_name": "simple_water_isotope_model_2020",
+      "file": "legacy_matlab/simple_water_isotope_model_2020.m",
+      "sha256": "11321a4e441a131d4d7644a7a1bb2a14130769543a505c3e13104e7f141e1bb7"
+    },
+    {
+      "function_name": "evaporation_2021",
+      "file": "legacy_matlab/evaporation_2021.m",
+      "sha256": "8dda799848108d7d1f23d9efa3a34710bb18d9fe62362d8c55492140978c9292"
+    },
+    {
+      "function_name": "T_RH_RHn_2020",
+      "file": "legacy_matlab/T_RH_RHn_2020.m",
+      "sha256": "5ec64cfdf3eab1cf5dd8f3b7f2844814fbf406c7d7a27a0f64591157f0bea844"
+    },
+    {
+      "function_name": "d18Osw_to_dDsw",
+      "file": "legacy_matlab/d18Osw_to_dDsw.m",
+      "sha256": "630d56f41f224beba62dc1b953cfa3ec143ef6d927c5d92883115261d3a0d824"
+    },
+    {
+      "function_name": "distillation_2020",
+      "file": "legacy_matlab/distillation_2020.m",
+      "sha256": "7ac21215a3240d150c2819d9db13c21522df3b4fb4492a11e15b683841f1ed0a"
+    },
+    {
+      "function_name": "fraction_il_brm_H10",
+      "file": "legacy_matlab/fraction_il_brm_H10.m",
+      "sha256": "bdf1ca7809b171f913c95ff03c260b3d3695dff7429dd40b2dd17ebcc9ecaf27"
+    },
+    {
+      "function_name": "mixed_phased_supersaturation",
+      "file": "legacy_matlab/mixed_phased_supersaturation.m",
+      "sha256": "6f752570c9ae3cdbe3bbb4a0172e7fff65c353342b3f54313b0a71bc201368c1"
+    },
+    {
+      "function_name": "pseudo_adiabat_function",
+      "file": "legacy_matlab/pseudo_adiabat_function.m",
+      "sha256": "d7089e7df7c6b1da7feb84f340c4b245302f4a95dfe6bf71318de4d601aa0c6b"
+    },
+    {
+      "function_name": "Ts_to_Tc_2020",
+      "file": "legacy_matlab/Ts_to_Tc_2020.m",
+      "sha256": "aa207dca4273863325762833df70d997830b714a1b311c5cea0b9671723ff14b"
+    }
+  ],
+  "result": {
+    "reconstructed_count": 2248,
+    "outside_interpolation_domain_count": 0,
+    "invalid_input_row_count": 78,
+    "model_runtime_seconds": 13.058057791666666,
+    "state_space_shape": [
+      29,
+      71
+    ],
+    "trajectory_runtime_seconds": 0.010477666666666666,
+    "trajectory_row_count": 401,
+    "trajectory_initial_conditions": {
+      "dD_v0": -92.668252271735369,
+      "d18O_v0": -12.49273949377594,
+      "d17Oxs_v0": 7.0739496313074191E-6,
+      "RHn0": 0.81856939915063431,
+      "RH0": 0.85292580149455144,
+      "SST0_C": 10.911054921677735
+    }
+  },
+  "finished_at_utc": "2026-09-14T00:52:38.497Z",
+  "status": "completed",
+  "outputs": {
+    "results_csv": {
+      "file": "allan_hills_reconstruction.csv",
+      "sha256": "90cf3439607079d15e045e17a3e93e2830c2010a65df359999de875d12e24ca6"
+    },
+    "state_space_mat": {
+      "file": "state_space.mat",
+      "sha256": "7063fd69d8ddf1f2b52c8a7fa5450867a23b77c01f1503ae7a1dcf5842a98069"
+    },
+    "trajectory_csv": {
+      "file": "trajectory_Tsource_10_Tcond_m30.csv",
+      "sha256": "c9bbfbdf39c626dd7e320b5373fe2ed44dc191f5b5452e1fcd2a95463dfda879"
+    },
+    "trajectory_mat": {
+      "file": "trajectory_Tsource_10_Tcond_m30.mat",
+      "sha256": "5ca8cca90a72d2789792dac1c905632ebc95d6a5a15ced78315feac461537713"
+    }
+  }
+}

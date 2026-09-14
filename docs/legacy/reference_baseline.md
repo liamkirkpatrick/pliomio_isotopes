@@ -64,6 +64,21 @@ If the legacy MATLAB source is copied into this repository, record the exact sou
 
 **Status: PROVISIONAL — publication-generating configuration not yet fully pinned**
 
+**Initial Python porting baseline: FROZEN as `matlab-port-baseline-v1`**
+
+The frozen porting baseline is an executable numerical target for the first
+Python implementation. It does not claim to identify the exact configuration
+used for every published result. Its fixture is stored at:
+
+```text
+tests/fixtures/matlab/port_baseline_v1/allan_hills/
+```
+
+It was generated from a clean repository at commit
+`5c0102b3b319f302c056e3dcb2fe92083158c2c7` with MATLAB R2026a Update 4 on
+Apple silicon. The fixture metadata records the exact source-file hashes,
+configuration, toolbox inventory, input checksum, and output checksums.
+
 The checked-in repository contains multiple dated versions of important model components. The numerically newest filename is not necessarily the active implementation.
 
 The checked-in example currently implies the following forward-model call chain for the climatological-relative-humidity case:

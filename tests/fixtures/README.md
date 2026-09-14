@@ -120,9 +120,17 @@ Suggested initial identifier:
 matlab-baseline-v1
 ```
 
-Do not use `baseline_v1` until `docs/legacy/reference_baseline.md` has been changed from **PROVISIONAL** to **FROZEN**.
+The publication-generating baseline remains provisional. The separately named
+`port_baseline_v1` directory is frozen as the initial executable target for
+Python parity and must not be described as the confirmed publication baseline.
 
 Before that point, temporary archaeology exports should live outside the committed canonical fixture directory or be explicitly labeled provisional.
+
+The initial frozen porting fixture is:
+
+```text
+tests/fixtures/matlab/port_baseline_v1/allan_hills/
+```
 
 ---
 
