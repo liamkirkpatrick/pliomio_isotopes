@@ -23,7 +23,7 @@ MATLAB repository snapshot inspected:
 - `bradley-markle/simple_water_isotope_model`
 - commit `4db23b79aab8f2154254d9111f77e70a5ce8427d`
 
-The Python columns are intentionally marked `TBD` until the implementation exists.
+Python targets remain marked `TBD` until the corresponding implementation exists.
 
 ---
 
@@ -41,17 +41,18 @@ The Python columns are intentionally marked `TBD` until the implementation exist
 
 | Scientific concept | Paper source | MATLAB implementation | Code status | Python target | Parity / validation target | Notes |
 |---|---|---|---|---|---|---|
-| delta notation | Eq. (1) | `evaporation_2021.m`; `distillation_2020.m` | VERIFIED-CODE | TBD | ratio↔delta unit tests | MATLAB uses per-mil values and VSMOW ratios |
-| VSMOW isotope ratios | background / standard | `evaporation_2021.m`; `distillation_2020.m` | VERIFIED-CODE | TBD | exact-constant test | preserve constants during parity |
-| linear deuterium excess \(d_{xs}\) | Sect. 1.1 | `distillation_2020.m`; wrapper | VERIFIED-CODE | TBD | known isotope-pair unit test | \(dD-8d18O\) |
-| logarithmic isotope transform | Sect. 1.2, Eq. (4) | `distillation_2020.m`; `Tsite_Tsource_reconstruction_quick.m` | VERIFIED-CODE | TBD | scaling-specific unit test | MATLAB uses \(1000\ln(1+\delta/1000)\) |
-| logarithmic deuterium excess \(d_{ln}\) | Eq. (4) | `simple_water_isotope_model_2020.m`; `Tsite_Tsource_reconstruction_quick.m` | VERIFIED-CODE | TBD | compare MATLAB values for isotope grid | paper and code use different numerical scaling conventions but equivalent polynomial coefficients after scaling |
+| delta notation | Eq. (1) | `evaporation_2021.m`; `distillation_2020.m` | VERIFIED-CODE | `swim.isotopes.delta_to_ratio`; `ratio_to_delta` | unit tests + frozen trajectory ratios | MATLAB uses per-mil values and VSMOW ratios |
+| VSMOW isotope ratios | background / standard | `evaporation_2021.m`; `distillation_2020.m` | VERIFIED-CODE | `swim.isotopes.R18O_VSMOW`; `RD_VSMOW`; `R17O_VSMOW` | exact-constant test | constants preserved exactly during parity |
+| linear deuterium excess \(d_{xs}\) | Sect. 1.1 | `distillation_2020.m`; wrapper | VERIFIED-CODE | `swim.isotopes.linear_deuterium_excess` | unit test + frozen trajectory | \(dD-8d18O\) |
+| logarithmic isotope transform | Sect. 1.2, Eq. (4) | `distillation_2020.m`; `Tsite_Tsource_reconstruction_quick.m` | VERIFIED-CODE | `swim.isotopes.log_delta` | unit test + frozen trajectory | MATLAB uses \(1000\ln(1+\delta/1000)\) |
+| logarithmic deuterium excess \(d_{ln}\) | Eq. (4) | `simple_water_isotope_model_2020.m`; `Tsite_Tsource_reconstruction_quick.m` | VERIFIED-CODE | `swim.isotopes.logarithmic_deuterium_excess` | unit test + frozen trajectory | paper and code use different numerical scaling conventions but equivalent polynomial coefficients after scaling |
+| \(^{17}O\) excess diagnostic | Sect. 1.2 | `distillation_2020.m`; wrapper | VERIFIED-CODE | `swim.isotopes.oxygen_17_excess` | unit test + frozen trajectory | returns per meg and preserves the legacy 0.528 exponent |
 | source \(T_0\) → SST/RH climatology | Appendix A1.1 | `T_RH_RHn_2020.m`; data spline `.mat` files | LIKELY-ACTIVE | TBD | exported curve at selected \(T_0\) values | spline is base method |
 | normalized RH | Eq. (A1) | `T_RH_RHn_2020.m`; parts of `evaporation_2021.m` | OPEN | TBD | RHn reference table | checked-in 2020 file likely has wrong °C→K sign; 2022 file changes it |
-| saturation mixing ratio | Eq. (A2) | `mixed_phased_supersaturation.m`; `pseudo_adiabat_function.m` | VERIFIED-CODE | TBD | compare \(r_s(T,P)\) | \(\eta=0.622\) |
-| saturation vapor pressure, liquid | Appendix A1.2 / Murphy & Koop | `pseudo_adiabat_function.m`; `evaporation_2021.m` | VERIFIED-CODE | TBD | reference values at fixed T | exact formula should be preserved |
-| saturation vapor pressure, ice | Appendix A1.2 / Murphy & Koop | same | VERIFIED-CODE | TBD | reference values at fixed T | exact formula should be preserved |
-| mixed cloud liquid/ice fraction | Appendix A1.2; Fig. A7 | `fraction_il_brm_H10.m` | VERIFIED-CODE | TBD | compare full fraction curve | active method in `distillation_2020.m` is `adj` |
+| saturation mixing ratio | Eq. (A2) | `mixed_phased_supersaturation.m`; `pseudo_adiabat_function.m` | VERIFIED-CODE | `swim.saturation.saturated_mixing_ratio` | unit test + frozen trajectory | \(\eta=0.622\) preserved exactly |
+| saturation vapor pressure, liquid | Appendix A1.2 / Murphy & Koop | `pseudo_adiabat_function.m`; `evaporation_2021.m` | VERIFIED-CODE | `swim.saturation.saturation_vapor_pressure_liquid` | fixed-T unit values + frozen mixed-phase trajectory | exact formula preserved; Celsius input and kPa output |
+| saturation vapor pressure, ice | Appendix A1.2 / Murphy & Koop | same | VERIFIED-CODE | `swim.saturation.saturation_vapor_pressure_ice` | fixed-T unit values + frozen mixed-phase trajectory | exact formula preserved; Celsius input and kPa output |
+| mixed cloud liquid/ice fraction | Appendix A1.2; Fig. A7 | `fraction_il_brm_H10.m` | VERIFIED-CODE | `swim.cloud_phase.cloud_phase_fractions` | unit tests + frozen full fraction curve | all three legacy fits retained; active method in `distillation_2020.m` is `adj` |
 | pseudo-adiabatic pressure trajectory | Appendix A1.2 | `mixed_phased_supersaturation.m`; `pseudo_adiabat_function.m` | VERIFIED-CODE | TBD | compare full P(T) trajectory | Euler stepping |
 | fraction of vapor remaining \(f\) | Eq. (A10) | `pseudo_adiabat_function.m` | VERIFIED-CODE | TBD | compare full f(T) trajectory | `f = r_s/r_s(1)` |
 | fractionation factor definition | Eq. (A3) | embedded in evaporation/distillation formulas | VERIFIED-CODE | TBD | unit tests on α | |
