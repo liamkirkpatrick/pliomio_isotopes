@@ -378,6 +378,15 @@ Computes the pressure and vapor-content trajectory for the prescribed temperatur
 - prescribed low-temperature supersaturation;
 - `f = r_s / r_s(1)`.
 
+### Endpoint branch quirk
+
+After its Euler loop, `pseudo_adiabat_function.m` chooses the final-point
+supersaturation branch using `T(i)`. At that point `i` is still the
+penultimate MATLAB index, so a trajectory whose last step crosses 0 °C uses
+the penultimate temperature for that decision. The Python parity port
+preserves this behavior explicitly; it should not be corrected until after
+legacy parity is established.
+
 The precise ordering of these calculations may affect parity and should not be "cleaned up" prematurely.
 
 ---

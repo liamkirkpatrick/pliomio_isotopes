@@ -53,8 +53,9 @@ Python targets remain marked `TBD` until the corresponding implementation exists
 | saturation vapor pressure, liquid | Appendix A1.2 / Murphy & Koop | `pseudo_adiabat_function.m`; `evaporation_2021.m` | VERIFIED-CODE | `swim.saturation.saturation_vapor_pressure_liquid` | fixed-T unit values + frozen mixed-phase trajectory | exact formula preserved; Celsius input and kPa output |
 | saturation vapor pressure, ice | Appendix A1.2 / Murphy & Koop | same | VERIFIED-CODE | `swim.saturation.saturation_vapor_pressure_ice` | fixed-T unit values + frozen mixed-phase trajectory | exact formula preserved; Celsius input and kPa output |
 | mixed cloud liquid/ice fraction | Appendix A1.2; Fig. A7 | `fraction_il_brm_H10.m` | VERIFIED-CODE | `swim.cloud_phase.cloud_phase_fractions` | unit tests + frozen full fraction curve | all three legacy fits retained; active method in `distillation_2020.m` is `adj` |
-| pseudo-adiabatic pressure trajectory | Appendix A1.2 | `mixed_phased_supersaturation.m`; `pseudo_adiabat_function.m` | VERIFIED-CODE | TBD | compare full P(T) trajectory | Euler stepping |
-| fraction of vapor remaining \(f\) | Eq. (A10) | `pseudo_adiabat_function.m` | VERIFIED-CODE | TBD | compare full f(T) trajectory | `f = r_s/r_s(1)` |
+| mixed-phase supersaturation | Appendix A1.2 | `mixed_phased_supersaturation.m` | VERIFIED-CODE | `swim.thermodynamics.mixed_phase_supersaturation` | frozen full trajectory | separate first Euler integration preserved |
+| pseudo-adiabatic pressure trajectory | Appendix A1.2 | `mixed_phased_supersaturation.m`; `pseudo_adiabat_function.m` | VERIFIED-CODE | `swim.thermodynamics.pseudo_adiabat` | frozen full P(T) trajectory | second explicit Euler integration preserved |
+| fraction of vapor remaining \(f\) | Eq. (A10) | `pseudo_adiabat_function.m` | VERIFIED-CODE | `swim.thermodynamics.PseudoAdiabatResult` | frozen full f(T) trajectory | `f = r_s/r_s(1)` |
 | fractionation factor definition | Eq. (A3) | embedded in evaporation/distillation formulas | VERIFIED-CODE | TBD | unit tests on α | |
 | equilibrium D fractionation, liquid | Appendix A2 | `evaporation_2021.m`; `distillation_2020.m` | VERIFIED-CODE | TBD | α(T) reference grid | Criss coefficients |
 | equilibrium D fractionation, ice | Appendix A2; Lamb et al. update | same | VERIFIED-CODE | TBD | α(T) reference grid | Lamb formula active |
@@ -146,6 +147,7 @@ Use stable IDs so issues, commits, and tests can refer to these items.
 | SWIM-D008 | publication reconstruction script has external absolute paths and missing compilation scripts | `reconstruction_2020.m` | high for full paper reproduction, low for core model | full ice-core application |
 | SWIM-D009 | Python equivalent of MATLAB natural `griddata` not yet established | inversion helper | medium | inversion parity |
 | SWIM-D010 | MATLAB spline objects / precomputed climatology fits need migration strategy | `data/*_spline_model_*.mat` | medium | source-condition implementation |
+| SWIM-D011 | pseudo-adiabat endpoint phase branch tests the penultimate temperature | `pseudo_adiabat_function.m` uses `T(i)` after its loop | low/medium for trajectories ending at 0°C | preserved in Python; reconsider only after parity phase |
 
 Do not close a discrepancy merely because one interpretation is more scientifically plausible. Close it when the selected reference behavior is established and the intended future behavior is separately documented.
 
