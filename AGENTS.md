@@ -1,16 +1,18 @@
 # AGENTS.md
 
-## Repository-specific details to fill in (not for me, not agent)
+## Repository-specific details
 
-The following should be replaced once the initial project archaeology is complete:
-
-- exact Python package/module name
-- exact test commands
-- lint / formatting / type-check commands
-- MATLAB execution instructions
-- locations and formats of reference fixtures
-- project-specific numerical tolerances
-- any directories that should contain more specialized `AGENTS.md` files
+- Python package: `swim` under `src/swim/`
+- Full tests: `conda run -n mioplio python -m pytest -q`
+- MATLAB parity tests: `conda run -n mioplio python -m pytest -q tests/parity`
+- Lint: `conda run -n mioplio ruff check src tests scripts`
+- Type check: `conda run -n mioplio mypy src scripts`
+- MATLAB baseline runner: `run('tests/run_swim_allan_hills_test.m')`
+- Frozen fixtures: `tests/fixtures/matlab/port_baseline_v1/allan_hills/`
+- Fixture formats: numeric MATLAB v7 `.mat`, CSV, and JSON provenance
+- Numerical tolerances: use the explicit tolerances in `tests/parity/`; do not
+  change them without documenting numerical justification
+- No subdirectories currently require a more specialized `AGENTS.md`
 
 --- 
 
@@ -370,20 +372,23 @@ During the parity phase, elegance and optimization are secondary to correctness 
 
 ## Commands
 
-Use the repository's configured environment and commands.
-
-Typical commands may include:
+Use the Python 3.11 Conda environment and repository configuration:
 
 ```bash
-pytest
-pytest tests/parity/
+conda run -n mioplio python -m pytest -q
+conda run -n mioplio python -m pytest -q tests/parity
+conda run -n mioplio ruff check src tests scripts
+conda run -n mioplio mypy src scripts
 ```
 
-Replace or expand this section once the project's Python environment, linting, formatting, type checking, and MATLAB reference workflow are finalized.
+Regenerate a local MATLAB reference run with:
+
+```matlab
+run('tests/run_swim_allan_hills_test.m')
+```
 
 Do not assume an unavailable tool or dependency exists; inspect `pyproject.toml`, environment files, CI configuration, and repository documentation first.
 
 ---
-
 
 

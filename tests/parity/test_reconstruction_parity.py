@@ -2,9 +2,8 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from scipy.io import loadmat
 
-from swim.model import StateSpace
+from swim.model import StateSpace, load_matlab_state_space
 from swim.reconstruction import reconstruct_temperatures
 
 FIXTURE_DIR = (
@@ -17,20 +16,7 @@ FIXTURE_DIR = (
 
 
 def _fixture_state_space() -> StateSpace:
-    state = loadmat(FIXTURE_DIR / "state_space.mat", simplify_cells=True)
-    return StateSpace(
-        source_temperature_c=np.asarray(state["T_source"]),
-        condensation_temperature_c=np.asarray(state["T_site"]),
-        delta_18o=np.asarray(state["d18O_site"]),
-        delta_d=np.asarray(state["dD_site"]),
-        delta_18o_log=np.asarray(state["d18Oln_site"]),
-        delta_d_log=np.asarray(state["dDln_site"]),
-        deuterium_excess=np.asarray(state["dxs_site"]),
-        oxygen_17_excess_per_meg=np.asarray(state["d17O_xs_site"]),
-        logarithmic_deuterium_excess=np.asarray(state["dlnU_site"]),
-        saturated_mixing_ratio=np.asarray(state["r_s_site"]),
-        pressure_kpa=np.asarray(state["P_site"]),
-    )
+    return load_matlab_state_space(FIXTURE_DIR / "state_space.mat")
 
 
 @pytest.mark.parity

@@ -66,6 +66,8 @@ If the legacy MATLAB source is copied into this repository, record the exact sou
 
 **Initial Python porting baseline: FROZEN as `matlab-port-baseline-v1`**
 
+**Python core port status: COMPLETE for this frozen baseline**
+
 The frozen porting baseline is an executable numerical target for the first
 Python implementation. It does not claim to identify the exact configuration
 used for every published result. Its fixture is stored at:
@@ -78,6 +80,12 @@ It was generated from a clean repository at commit
 `5c0102b3b319f302c056e3dcb2fe92083158c2c7` with MATLAB R2026a Update 4 on
 Apple silicon. The fixture metadata records the exact source-file hashes,
 configuration, toolbox inventory, input checksum, and output checksums.
+
+The Python implementation now reproduces the helper physics, complete
+10 °C-to-−30 °C trajectory, complete 29 × 71 state space, and preferred Allan
+Hills inversion stored in this fixture. This completion statement is limited
+to the frozen baseline: the exact state-space provenance for every published
+result and the unavailable publication application inputs remain unresolved.
 
 The checked-in repository contains multiple dated versions of important model components. The numerically newest filename is not necessarily the active implementation.
 

@@ -23,7 +23,9 @@ MATLAB repository snapshot inspected:
 - `bradley-markle/simple_water_isotope_model`
 - commit `4db23b79aab8f2154254d9111f77e70a5ce8427d`
 
-Python targets remain marked `TBD` until the corresponding implementation exists.
+The frozen core baseline is now implemented. Remaining open items concern
+publication provenance, optional historical branches, or later application and
+uncertainty workflows rather than the validated core forward/inverse path.
 
 ---
 
@@ -138,7 +140,7 @@ Use stable IDs so issues, commits, and tests can refer to these items.
 
 | ID | Issue | Evidence | Risk | Resolution needed before |
 |---|---|---|---|---|
-| SWIM-D001 | publication baseline versions are not explicitly identified | wrapper uses mixed date suffixes; 2022 variants coexist | very high | full Python port |
+| SWIM-D001 | publication baseline versions are not explicitly identified | wrapper uses mixed date suffixes; 2022 variants coexist | very high | exact publication reproduction |
 | SWIM-D002 | `T_RH_RHn_2020.m` appears to convert °C to K with subtraction | 2020 vs 2022 file comparison | very high | source-condition parity |
 | SWIM-D003 | explicit-RH branch calls `evaporation_2020`, climatology branch calls `_2021` | top-level wrapper | medium/high | RH-dimension support |
 | SWIM-D004 | \(^{17}O\) ice equilibrium exponent 0.529 vs 0.531 | evaporation vs distillation | medium | triple-isotope parity |
@@ -146,125 +148,36 @@ Use stable IDs so issues, commits, and tests can refer to these items.
 | SWIM-D006 | `T_RH_RHn_2022.m` file declares function `T_RH_RHn_2020` | file header | medium | use of 2022 source-condition file |
 | SWIM-D007 | older reconstruction helper references stale/missing function names | `Tsite_Tsource_reconstruction.m` | medium | choosing inverse baseline |
 | SWIM-D008 | publication reconstruction script has external absolute paths and missing compilation scripts | `reconstruction_2020.m` | high for full paper reproduction, low for core model | full ice-core application |
-| SWIM-D009 | Python equivalent of MATLAB natural `griddata` not yet established | inversion helper | medium | inversion parity |
-| SWIM-D010 | MATLAB spline objects / precomputed climatology fits need migration strategy | `data/*_spline_model_*.mat` | medium | source-condition implementation |
+| SWIM-D010 | MATLAB spline objects are loaded from intentionally untracked legacy data | `data/*_spline_model_*.mat` | medium | standalone package distribution |
 | SWIM-D011 | pseudo-adiabat endpoint phase branch tests the penultimate temperature | `pseudo_adiabat_function.m` uses `T(i)` after its loop | low/medium for trajectories ending at 0°C | preserved in Python; reconsider only after parity phase |
 
 Do not close a discrepancy merely because one interpretation is more scientifically plausible. Close it when the selected reference behavior is established and the intended future behavior is separately documented.
 
 ---
 
-## 6. Proposed parity fixture matrix
+### Resolved during the baseline port
 
-The highest-value next deliverable is a small set of MATLAB-generated golden cases.
-
-### Fixture A — helper physics
-
-For a temperature vector such as:
-
-```text
-T = [20, 10, 0, -10, -30, -50] °C
-```
-
-export:
-
-- liquid and ice saturation vapor pressure;
-- \(F_{\rm liq}\), \(F_{\rm ice}\);
-- equilibrium fractionation factors;
-- prescribed supersaturation.
-
-### Fixture B — source environment / evaporation
-
-Choose several source temperatures spanning the model domain, for example:
-
-```text
-T0 = [0, 5, 10, 20, 28] °C
-```
-
-and export:
-
-- SST0;
-- RH0;
-- RHn0;
-- initial \(\delta^{18}O_v\);
-- initial \(\delta D_v\);
-- initial \(^{17}O_{xs,v}\).
-
-Run at least:
-
-- local closure;
-- global closure.
-
-### Fixture C — one full trajectory
-
-Example:
-
-```text
-T0 = 10 °C
-Tc = -30 °C
-dT = 0.1 °C
-```
-
-export **every step** of:
-
-- T
-- P
-- e_s
-- r_s
-- f
-- supersaturation
-- ice/liquid fraction
-- each equilibrium α
-- each kinetic α
-- each effective α
-- vapor isotope ratios
-- precipitation isotope ratios
-- delta/log-delta/excess outputs
-
-This is the most useful debugging fixture.
-
-### Fixture D — tiny state space
-
-Example:
-
-```text
-T0 = [5, 10, 15] °C
-Tc = [-20, -30, -40] °C
-```
-
-export all wrapper state-space arrays.
-
-### Fixture E — inverse reconstruction
-
-Select 5–10 isotope pairs within the state-space interior and export:
-
-- transformed isotope coordinates;
-- reconstructed \(T_0\);
-- reconstructed \(T_c\);
-- reconstructed \(T_s\).
-
-Avoid only using exact model grid points; include interpolation cases.
+| ID | Resolution |
+|---|---|
+| SWIM-D009 | `swim.interpolation.natural_neighbor_interpolate` implements Sibson area weights and matches all 2,326 frozen Allan Hills reconstruction rows to about \(10^{-12}\) °C. |
 
 ---
 
-## 7. Proposed Python traceability placeholders
+## 6. Implemented parity fixture coverage
 
-Once the package structure is established, update the matrix with concrete targets. A plausible mapping is:
+The checked-in `matlab-port-baseline-v1` fixture covers:
 
-| MATLAB role | Possible Python target |
-|---|---|
-| isotope conversions / excess definitions | `src/swim/isotopes.py` |
-| saturation vapor pressure | `src/swim/saturation.py` |
-| cloud phase partition | `src/swim/cloud_phase.py` |
-| pseudo-adiabatic trajectory | `src/swim/thermodynamics.py` |
-| source climatology | `src/swim/source_conditions.py` |
-| initial evaporation | `src/swim/evaporation.py` |
-| Rayleigh distillation | `src/swim/distillation.py` |
-| state-space generation | `src/swim/model.py` |
-| nonlinear inversion | `src/swim/inversion.py` |
-| surface-condensation conversion | `src/swim/temperature.py` |
+- helper isotope, saturation, cloud-phase, thermodynamic, and fractionation
+  calculations;
+- source evaporation initial conditions;
+- every step of the 10 °C to −30 °C diagnostic trajectory;
+- the complete 29 × 71 forward state space; and
+- all 2,326 Allan Hills inverse rows, including points between model-grid
+  coordinates and observations outside the interpolation domain.
 
-Do not commit to this layout before implementing the first few parity-tested components; the correct boundaries may become clearer during archaeology.
+The fixture includes MATLAB v7 files for array-level comparisons, CSV files
+for transparent inspection, and JSON generation provenance. Python coverage is
+split among `tests/unit/`, `tests/integration/`, and `tests/parity/`.
 
 ---
 

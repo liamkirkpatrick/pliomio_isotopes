@@ -1,9 +1,12 @@
 """Composed forward-model workflows for the frozen legacy SWIM baseline."""
 
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Literal
 
 import numpy as np
 from numpy.typing import NDArray
+from scipy.io import loadmat
 
 from swim.cloud_phase import cloud_phase_fractions
 from swim.distillation import DistillationResult, rayleigh_distillation
@@ -16,7 +19,12 @@ from swim.fractionation import (
     mixed_phase_effective_fractionation,
     transport_diffusivity_ratios,
 )
-from swim.source import InitialVapor, initial_vapor_from_climatology
+from swim.source import (
+    DEFAULT_LEGACY_DATA_DIR,
+    Hemisphere,
+    InitialVapor,
+    initial_vapor_from_climatology,
+)
 from swim.thermodynamics import (
     PseudoAdiabatResult,
     mixed_phase_supersaturation,
@@ -107,12 +115,22 @@ def forward_trajectory(
     supersaturation_a: float = 1.0,
     supersaturation_b: float = 0.00525,
     supersaturation_c: float = 0.0,
+    closure: Literal["local", "global"] = "local",
+    hemisphere: Hemisphere = "south",
+    reanalysis: Literal["ncep", "era"] = "ncep",
+    data_dir: Path = DEFAULT_LEGACY_DATA_DIR,
 ) -> ForwardTrajectory:
     """Run one complete frozen-baseline SWIM forward trajectory."""
     temperature = matlab_temperature_grid(
         source_temperature_c, condensation_temperature_c, step_c
     )
-    source_vapor = initial_vapor_from_climatology(source_temperature_c)
+    source_vapor = initial_vapor_from_climatology(
+        source_temperature_c,
+        closure=closure,
+        hemisphere=hemisphere,
+        reanalysis=reanalysis,
+        data_dir=data_dir,
+    )
     fraction_ice_raw, fraction_liquid_raw = cloud_phase_fractions(
         temperature, method="adj"
     )
@@ -177,6 +195,11 @@ def forward_state_space(
     supersaturation_a: float = 1.0,
     supersaturation_b: float = 0.00525,
     supersaturation_c: float = 0.0,
+    initial_pressure_kpa: float = 101.325,
+    closure: Literal["local", "global"] = "local",
+    hemisphere: Hemisphere = "south",
+    reanalysis: Literal["ncep", "era"] = "ncep",
+    data_dir: Path = DEFAULT_LEGACY_DATA_DIR,
 ) -> StateSpace:
     """Build the endpoint state space from ``simple_water_isotope_model_2020``."""
     source_grid = np.asarray(source_temperature_c, dtype=np.float64)
@@ -205,9 +228,14 @@ def forward_state_space(
                 float(source_temperature),
                 float(condensation_temperature),
                 step_c=trajectory_step_c,
+                initial_pressure_kpa=initial_pressure_kpa,
                 supersaturation_a=supersaturation_a,
                 supersaturation_b=supersaturation_b,
                 supersaturation_c=supersaturation_c,
+                closure=closure,
+                hemisphere=hemisphere,
+                reanalysis=reanalysis,
+                data_dir=data_dir,
             )
             isotope = trajectory.distillation
             thermodynamics = trajectory.thermodynamics
@@ -242,10 +270,57 @@ def forward_state_space(
     )
 
 
+def load_matlab_state_space(path: Path | str) -> StateSpace:
+    """Load a state space exported by the MATLAB validation runner."""
+    values = loadmat(str(path), simplify_cells=True)
+    names = {
+        "source_temperature_c": "T_source",
+        "condensation_temperature_c": "T_site",
+        "delta_18o": "d18O_site",
+        "delta_d": "dD_site",
+        "delta_18o_log": "d18Oln_site",
+        "delta_d_log": "dDln_site",
+        "deuterium_excess": "dxs_site",
+        "oxygen_17_excess_per_meg": "d17O_xs_site",
+        "logarithmic_deuterium_excess": "dlnU_site",
+        "saturated_mixing_ratio": "r_s_site",
+        "pressure_kpa": "P_site",
+    }
+    missing = sorted(
+        matlab_name for matlab_name in names.values() if matlab_name not in values
+    )
+    if missing:
+        raise ValueError(f"MATLAB state-space file is missing: {', '.join(missing)}")
+    arrays = {
+        python_name: np.asarray(values[matlab_name], dtype=np.float64)
+        for python_name, matlab_name in names.items()
+    }
+    if arrays["source_temperature_c"].ndim != 1:
+        arrays["source_temperature_c"] = arrays["source_temperature_c"].ravel()
+    if arrays["condensation_temperature_c"].ndim != 1:
+        arrays["condensation_temperature_c"] = arrays[
+            "condensation_temperature_c"
+        ].ravel()
+    expected_shape = (
+        arrays["source_temperature_c"].size,
+        arrays["condensation_temperature_c"].size,
+    )
+    for name, array in arrays.items():
+        if name.endswith("temperature_c"):
+            continue
+        if array.shape != expected_shape:
+            raise ValueError(
+                f"MATLAB state-space array {names[name]!r} has shape {array.shape}; "
+                f"expected {expected_shape}"
+            )
+    return StateSpace(**arrays)
+
+
 __all__ = [
     "ForwardTrajectory",
     "StateSpace",
     "forward_state_space",
     "forward_trajectory",
+    "load_matlab_state_space",
     "matlab_temperature_grid",
 ]
